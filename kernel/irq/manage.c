@@ -1135,7 +1135,7 @@ static void add_desc_to_perf_list(struct irq_desc *desc)
 static void affine_one_perf_thread(struct task_struct *t)
 {
 	t->flags |= PF_PERF_CRITICAL;
-	set_cpus_allowed_ptr(t, cpu_perf_mask);
+	set_cpus_allowed_ptr(t, cpu_cpu_mask);
 }
 
 static void unaffine_one_perf_thread(struct task_struct *t)
@@ -1150,7 +1150,7 @@ static void affine_one_perf_irq(struct irq_desc *desc)
 
 	/* Balance the performance-critical IRQs across all perf CPUs */
 	while (1) {
-		cpu = cpumask_next_and(perf_cpu_index, cpu_perf_mask,
+		cpu = cpumask_next_and(perf_cpu_index, cpu_cpu_mask,
 				       cpu_online_mask);
 		if (cpu < nr_cpu_ids)
 			break;
@@ -1164,7 +1164,7 @@ static void affine_one_perf_irq(struct irq_desc *desc)
 static void setup_perf_irq_locked(struct irq_desc *desc)
 {
 	add_desc_to_perf_list(desc);
-	irqd_set(&desc->irq_data, IRQD_AFFINITY_MANAGED);
+	irqd_set(&desc->irq_data, IRQD_AFFINITY_SET);
 	raw_spin_lock(&perf_irqs_lock);
 	affine_one_perf_irq(desc);
 	raw_spin_unlock(&perf_irqs_lock);

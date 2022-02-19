@@ -505,8 +505,8 @@ int cpu_down(unsigned int cpu)
 	cpumask_andnot(&newmask, cpu_online_mask, cpumask_of(cpu));
 
 	/* One big cluster CPU and one little cluster CPU must remain online */
-	if (!cpumask_intersects(&newmask, cpu_perf_mask) ||
-	    !cpumask_intersects(&newmask, cpu_lp_mask))
+	if (!cpumask_intersects(&newmask, cpu_cpu_mask) ||
+	    !cpumask_intersects(&newmask, cpu_cpu_mask))
 		return -EINVAL;
 
 	cpu_maps_update_begin();
@@ -879,7 +879,7 @@ void enable_nonboot_cpus(void)
 		error = _cpu_up(cpu, 1);
 		trace_suspend_resume(TPS("CPU_ON"), cpu, false);
 		if (!error) {
-			pr_info("CPU%d is up\n", cpu);
+			pr_debug("CPU%d is up\n", cpu);
 			cpu_device = get_cpu_device(cpu);
 			if (!cpu_device)
 				pr_err("%s: failed to get cpu%d device\n",
