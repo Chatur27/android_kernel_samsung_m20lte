@@ -252,6 +252,11 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 		platform->interactive.highspeed_clock = of_data_int_array[0] == 0 ? 500 : (u32) of_data_int_array[0];
 		platform->interactive.highspeed_load  = of_data_int_array[1] == 0 ? 100 : (u32) of_data_int_array[1];
 		platform->interactive.highspeed_delay = of_data_int_array[2] == 0 ? 0 : (u32) of_data_int_array[2];
+		
+		// Hardcode
+		platform->interactive.highspeed_clock = 1001000;
+		platform->interactive.highspeed_load = 75;
+
 	} else if (!strncmp("static", of_string, strlen("static"))) {
 		platform->governor_type = G3D_DVFS_GOVERNOR_STATIC;
 	} else if (!strncmp("booster", of_string, strlen("booster"))) {
@@ -274,15 +279,29 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 	gpu_update_config_data_int(np, "gpu_max_clock", &platform->gpu_max_clock);
 	gpu_update_config_data_int(np, "gpu_max_clock_limit", &platform->gpu_max_clock_limit);
 	gpu_update_config_data_int(np, "gpu_min_clock", &platform->gpu_min_clock);
+	
+	// Hardcode
+	platform->gpu_max_clock = 1300000;
+	platform->gpu_max_clock_limit = 1300000;
+	platform->gpu_min_clock = 343000;
+	
 	gpu_update_config_data_int(np, "gpu_dvfs_bl_config_clock", &platform->gpu_dvfs_config_clock);
 	gpu_update_config_data_int(np, "gpu_default_voltage", &platform->gpu_default_vol);
 	gpu_update_config_data_int(np, "gpu_cold_minimum_vol", &platform->cold_min_vol);
 	gpu_update_config_data_int(np, "gpu_voltage_offset_margin", &platform->gpu_default_vol_margin);
 	gpu_update_config_data_bool(np, "gpu_tmu_control", &platform->tmu_status);
 	gpu_update_config_data_int(np, "gpu_temp_throttling_level_num", &of_data_int);
-	if (of_data_int == TMU_LOCK_CLK_END)
+	if (of_data_int == TMU_LOCK_CLK_END) {
 		gpu_update_config_data_int_array(np, "gpu_temp_throttling", platform->tmu_lock_clk, TMU_LOCK_CLK_END);
-	else
+
+		// Hardcode
+		platform->tmu_lock_clk[0] = 676000;
+		platform->tmu_lock_clk[1] = 545000;
+		platform->tmu_lock_clk[2] = 450000;
+		platform->tmu_lock_clk[3] = 343000;
+		platform->tmu_lock_clk[4] = 343000;
+		platform->tmu_lock_clk[5] = 343000;
+	} else
 		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "mismatch tmu lock table size: %d, %d\n",
 				of_data_int, TMU_LOCK_CLK_END);
 #ifdef CONFIG_CPU_THERMAL_IPA
